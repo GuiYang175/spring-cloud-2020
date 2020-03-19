@@ -1,0 +1,16 @@
+server:
+  port: 7002
+
+eureka:
+  instance:
+    hostname: eureka7002.com #需要在C:\Windows\System32\driver\etc\hosts文件中做映射 127.0.0.1 eureka7002.com
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      defaultZone: http://eureka7001.com:7001/eureka/
+
+#  #配置eureka是否进入绝情模式(接受不到服务心跳时，立即删除)
+#  server:
+#    enable-self-preservation: false #禁用自我保护机制（自我保护:微服务掉线或网络堵塞时，也不会删除该服务信息（好死不如赖活着））
+#    eviction-interval-timer-in-ms: 2000 #发送心跳间隔时间为2秒
