@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author guiyang
@@ -48,9 +49,9 @@ public class PaymentController {
         }
     }
 
-    @GetMapping(value = "payment/discovery")
+    @GetMapping(value = "/payment/discovery")
     public Object discovery(){
-        //获取服务驻车中心（eureka）的所有微服务名称信息
+        //获取服务注册中心（eureka）的所有微服务名称信息
         List<String> services = discoveryClient.getServices();
         for (String element : services) {
             log.info("*********element:"+element);
@@ -61,5 +62,20 @@ public class PaymentController {
             log.info(instance.getServiceId()+"\t"+instance.getHost()+"\t"+instance.getUri());
         }
         return this.discoveryClient;
+    }
+
+    @GetMapping(value = "/payment/lb")
+    public String getPaymentLb(){
+        return servicePort;
+    }
+
+    @GetMapping(value = "/payment/feign/timeout")
+    public String paymentFeignTimeout(){
+        try {
+            TimeUnit.SECONDS.sleep(3);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return servicePort;
     }
 }

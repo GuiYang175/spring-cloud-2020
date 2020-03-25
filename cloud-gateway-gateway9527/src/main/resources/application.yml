@@ -1,0 +1,44 @@
+server:
+  port: 9527
+spring:
+  application:
+    name: cloud-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true # 开启从注册中心动态创建路由的功能，利用微服务名进行路由
+      routes:
+          #路由的ID，没有固定规则但要求唯一，建议配合服务名
+        - id: payment_routh
+#          #匹配后提供服务的路由地址
+#          uri: http://localhost:8001
+          uri: lb://cloud-payment-service
+          #断言，路径相匹配的进行路由
+          predicates:
+            - Path=/payment/get/**
+
+          #路由的ID，没有固定规则但要求唯一，建议配合服务名
+        - id: payment_routh2
+#          #匹配后提供服务的路由地址
+#          uri: http://localhost:8001
+          uri: lb://cloud-payment-service
+          #断言，路径相匹配的进行路由
+          predicates:
+            - Path=/payment/lb/**
+#            - After=2020-03-25T09:56:16.931+08:00[Asia/Shanghai] #在这个时间之后访问才会有效
+#            - Cookie=username,guiyang
+#            - Header=X-Request-Id, \d+ #请求头要有X-Request-Id属性并且值为整数的正则表达式
+#            - Query=username,\d+ # 要有参数名username并且值还是整数才能路由 eg.http://localhost:9527/payment/lb?username=31
+#            - Host=**.guiyang.com #-H "Host:guiyang.com"
+#            - Method=Get
+#          filters: #一般用自定义全局GlobalFilter，主要是实现GlobalFilter，Ordered接口
+#            - AddRequestParameter=X-Request-Id,1024 #过滤器工厂会在匹配的请求头上加上一对请求头，名称为X-Request-Id的值为1024
+eureka:
+  instance:
+    hostname: cloud-gateway-service
+  client:
+    service-url:
+      defaultZone: http://eureka7001.com:7001/eureka/,http://eureka7002.com:7002/eureka/
+    register-with-eureka: true
+    fetch-registry: true
