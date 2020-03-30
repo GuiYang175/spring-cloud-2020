@@ -34,11 +34,11 @@ spring:
 #            - Method=Get
 #          filters: #一般用自定义全局GlobalFilter，主要是实现GlobalFilter，Ordered接口
 #            - AddRequestParameter=X-Request-Id,1024 #过滤器工厂会在匹配的请求头上加上一对请求头，名称为X-Request-Id的值为1024
-eureka:
-  instance:
-    hostname: cloud-gateway-service
-  client:
-    service-url:
-      defaultZone: http://eureka7001.com:7001/eureka/,http://eureka7002.com:7002/eureka/
-    register-with-eureka: true
-    fetch-registry: true
+#eureka:
+#  instance:
+#    hostname: cloud-gateway-service
+#  client:
+#    service-url:
+#      defaultZone: http://eureka7001.com:7001/eureka/,http://eureka7002.com:7002/eureka/
+#    register-with-eureka: true
+#    fetch-registry: true

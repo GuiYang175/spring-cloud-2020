@@ -24,8 +24,14 @@ import java.util.List;
 @RestController
 @Slf4j
 public class OrderController {
+    /**
+     * 需要请求的服务的服务名
+     */
     public static final String PAYMENT_URL = "http://CLOUD-PAYMENT-SERVICE";
 
+    /**
+     * 基于Rest规范提供Http请求的工具，须在configure里配置
+     */
     @Resource
     private RestTemplate restTemplate;
 
@@ -68,7 +74,7 @@ public class OrderController {
      */
     @GetMapping(value = "/consumer/payment/lb")
     public String getPaymentUrlLB(){
-
+        //获取注册中心里服务名为CLOUD-PAYMENT-SERVICE的所有服务信息
         List<ServiceInstance> instances = discoveryClient.getInstances("CLOUD-PAYMENT-SERVICE");
         if (CollectionUtils.isEmpty(instances)){
             return null;
