@@ -33,7 +33,6 @@
 
 
 ![Eureka工作示意图](.\image\Eureka示意图.png)
-
 *Eureka Server功能 :*
 
 * **服务注册**： 将服务信息注册进注册中心
@@ -336,7 +335,6 @@ public class OrderMain80 {
             <artifactId>zookeeper</artifactId>
             <version>3.4.9</version>
         </dependency>
-    </dependencies>
 ```
 
 ##### ② yml
@@ -846,7 +844,6 @@ public class PaymentService {
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
     </dependency>
-</dependencies>
 ```
 
 #### 2） yml
