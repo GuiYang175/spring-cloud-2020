@@ -53,7 +53,7 @@
 
 ​		互相注册，相互守望
 
-![注册原理示意图](.\image\Eureka注册原理.png)
+![注册原理示意图](.\image\Eureka.png)
 
 ## 4、 Eureka工作流程（以项目demo举例）
 
