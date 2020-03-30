@@ -32,7 +32,7 @@
 
 
 
-![Eureka工作示意图](.\image\Eureka示意图.png)
+![Eureka工作示意图](https://github.com/guiyang175/spring-cloud-2020/raw/master/image/Eureka.png)
 *Eureka Server功能 :*
 
 * **服务注册**： 将服务信息注册进注册中心
@@ -53,7 +53,7 @@
 
 ​		互相注册，相互守望
 
-![注册原理示意图](.\image\Eureka.png)
+![注册原理示意图](https://github.com/guiyang175/spring-cloud-2020/raw/master/image/Eureka注册原理.png)
 
 ## 4、 Eureka工作流程（以项目demo举例）
 
@@ -966,7 +966,7 @@ public class OrderHystrixMain80 {
 
 ### Ⅱ 熔断机制示意图
 
-![熔断示意图](.\image\熔断示意图.png)
+![熔断示意图](https://github.com/guiyang175/spring-cloud-2020/raw/master/image/熔断示意图.png)
 
 ### Ⅲ 熔断类型
 
@@ -1517,7 +1517,7 @@ pom文件与上一章一致,yml为新增内容
 
 ## 2、Stream工作示意图
 
-![Stream工作示意图](.\image\Stream示意图.png)
+![Stream工作示意图](https://github.com/guiyang175/spring-cloud-2020/raw/master/image/Stream示意图.png)
 
 * Binder ：很方便的连接中间价，屏蔽差异
 * Channel ：通道，是队列Queue的一种抽象，在消息通讯系统中就是实现存储和转发的媒介，通过Channel对队列进行配置
