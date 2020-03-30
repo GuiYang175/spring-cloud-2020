@@ -55,7 +55,7 @@
 
 ![注册原理示意图](https://github.com/guiyang175/spring-cloud-2020/raw/master/image/Eureka注册原理.png)
 
-## 4、 Eureka工作流程（以项目demo举例）
+## 4、Eureka工作流程（以项目demo举例）
 
 1. 先启动Eureka注册中心
 2. 启动服务提供者payment支付服务
@@ -1249,7 +1249,7 @@ public class GateWayMain9527 {
 
 
 
-# 七、Config 分布式配置中心
+# 六、Config 分布式配置中心
 
 ## 1、简介
 
@@ -1438,7 +1438,7 @@ public class ConfigController {
 
 
 
-# 八、Bus 消息总线
+# 七、Bus 消息总线
 
 ## 1、简介
 
@@ -1507,7 +1507,7 @@ pom文件与上一章一致,yml为新增内容
 
 [^3]: 微服务名称加端口号
 
-# 九、Stream 消息驱动
+# 八、Stream 消息驱动
 
 ## 1、简介
 
@@ -1704,7 +1704,7 @@ cloud:
 
 
 
-# 十、Sleuth 分布式请求链路跟踪
+# 九、Sleuth 分布式请求链路跟踪
 
 ## 1、简介
 
