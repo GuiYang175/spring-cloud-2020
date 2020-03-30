@@ -32,7 +32,7 @@
 
 
 
-![Eureka工作示意图](.\image\Eureka示意图.png)
+![Eureka工作示意图](https://github.com/guiyang175/spring-cloud-2020/raw/master/image/Eureka示意图.png)
 *Eureka Server功能 :*
 
 * **服务注册**： 将服务信息注册进注册中心
