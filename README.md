@@ -1743,3 +1743,217 @@ spring:
     sampler:
       probability: 1 # 采样率值介于0到1之间，1则表示全部采集,一般为0.5
 ```
+
+
+
+# 十、Alibaba 入门介绍
+
+## 1、能干嘛
+
+* **服务限流降级**：默认支持 Servlet、Feign、RestTemplate、Dubbo和RocketMQ限流降级功能的接入，可以在运行时通过控制台实时修改限流降级规则，还支持查看限流降级 Metrics 监控
+* **服务注册与发现**：适配Spring Cloud 服务注册与发现标准，默认继承了Ribbon支持
+* **分布式配置管理**：支持分布式系统中的外部化配置，配置更改时自动刷新
+* **消息驱动能力**：基于Spring Cloud Stream 为微服务应用架构消息驱动能力
+* **阿里云对象存储**：阿里云提供的海量、安全、低成本、高可靠的云存储服务。支持在任何应用、任何时间、任何地点存储和访问任意类型的数据
+* **分布式任务调度**：提供秒级、精准、高可靠、高可用的定时（基于Cron表达式）任务调度服务。同时提供分布式的任务执行模型，如网格任务。***网格任务*** 支持海量子任务均匀分配到所有Worker（schedulerx-client）上执行
+
+
+
+## 2、中文文档
+
+​		https://github.com/alibaba/spring-cloud-alibaba/blob/master/README-zh.md
+
+
+
+# 十一、Alibaba Nacos 服务注册和配置中心
+
+## 1、简介
+
+* Nacos[^Nacos官网] 前四个字母分别为 Naming 和 Configuration 的前两个字母，最后的s为Service
+
+* 一个更易于构建云原生应用的动态服务发现、配置管理和服务管理平台。（就是 注册中心 + 配置中心 的组合 等价于 Nacos = Eureka + Config + Bus）
+* **注：Nacos 1.2.0 还不支持mysql8.0以上版本**
+
+[^Nacos官网]:https://nacos.io/zh-cn
+
+
+
+## 2、各种注册中心比较
+
+| 服务注册与发现框架 | CAP 模型     | 控制台管理 | 社区活跃度       |
+| ------------------ | ------------ | ---------- | ---------------- |
+| Eureka             | AP           | 支持       | 低(2.x 版本闭源) |
+| Zookeeper          | CP           | 不支持     | 中               |
+| Consul             | CP           | 支持       | 高               |
+| Nacos              | AP/CP 可切换 | 支持       | 高               |
+
+
+
+## 3、安装并运行
+
+* 解压后，直接运行bin目录下的startup.cmd
+* 命令成功后，直接访问http://localhost:8848/nacos
+
+
+
+## 4、Nacos 实操关键内容
+
+### Ⅰ 注册中心
+
+#### 1）pom
+```xml
+    <!-- dependencyManagement  一般写在父pom中-->
+	<dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring.cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${spring.cloud.alibaba.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+```
+```xml
+	<!-- 省略了web和actuator-->
+    <dependencies>
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+```
+
+#### 2）yml
+
+```yml
+spring:
+  application:
+    name: nacos-payment-provider
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+```
+
+#### 3）主启动
+
+```java
+@SpringBootApplication
+@EnableDiscoveryClient
+public class PaymentMain9001 {
+    public static void main(String[] args){
+        SpringApplication.run(PaymentMain9001.class,args);
+    }
+}
+```
+
+### Ⅱ 客户端
+
+#### 1）pom
+
+```xml
+    <dependencies>
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+```
+
+#### 2）yml
+
+```yml
+spring:
+  application:
+    name: nacos-payment-provider
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+#消费者将要去访问的微服务名称（注册成功通过nacos的服务器提供者)
+service-url:
+  nacos-user-service: http://nacos-payment-provider
+```
+
+#### 3）主启动
+
+```java
+@SpringBootApplication
+@EnableDiscoveryClient
+public class OrderNacosMain83 {
+    public static void main(String[] args){
+        SpringApplication.run(OrderNacosMain83.class,args);
+    }
+}
+```
+
+#### 4）业务类
+
+* config
+
+  * nacos的依赖整合了ribbon，有ribbon便可以使用restTemplate
+
+  ```java
+  @Configuration
+  public class ApplicationContextConfig {
+  
+      @Bean
+      @LoadBalanced
+      public RestTemplate getRestTemplate() {
+          return new RestTemplate();
+      }
+  }
+  ```
+
+* controller
+
+  ```java
+  @RestController
+  @Slf4j
+  public class OrderNacosController {
+      @Resource
+      private RestTemplate restTemplate;
+  
+      /**
+       * 与yml的属性对应
+       */
+      @Value("${service-url.nacos-user-service}")
+      private String serverUrl;
+  
+      @GetMapping(value = "/consumer/payment/nacos/{id}")
+      public String paymentInfo(@PathVariable("id")Long id){
+          return restTemplate.getForObject(serverUrl+"/payment/nacos/"+id,String.class);
+      }
+  }
+  ```
+
+## 5、Nacos与其它注册中心特性对比
+
+![Nacos与其它注册中心对比图](https://github.com/guiyang175/spring-cloud-2020/raw/master/image/Nacos与其它注册中心对比.png)
