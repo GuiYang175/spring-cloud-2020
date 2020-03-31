@@ -1794,9 +1794,25 @@ spring:
 * 解压后，直接运行bin目录下的startup.cmd
 * 命令成功后，直接访问http://localhost:8848/nacos
 
+## 4、Nacos与其它注册中心特性对比
+
+![Nacos与其它注册中心对比图](https://github.com/guiyang175/spring-cloud-2020/raw/master/image/Nacos与其它注册中心对比.png)
+
+* Nacos支持AP和CP模式的切换
+
+  C是所有节点在同一时间看到的数据是一致的，A是所有请求都会收到响应
+
+* 何时选择使用何种模式
+
+  * 如果不需要存储服务级别的信息且服务实例是通过nacos-client注册，并能够保持心跳上报，那么就可以选择AP模式。当前主流的服务如Spring Cloud和Dubbo服务，都适用于AP模式，AP模式为了服务的可见性而减弱了一致性，因此<u>AP模式下只支持注册临时性实例</u>
+  * 如果需要在服务级别编辑或者存储配置信息，那么CP是必须的，K8S服务和DNS服务则适用于CP模式。CP模式下则支持注册持久化实例，此时这是以Raft协议为集群运行模式，该模式下注册实例之前必须先注册服务，如果服务不存在，则会返回错误
+
+* 模式切换
+
+  crul -X PUT '$NACOS_SERVER:8848/nacos/v1/ns/operator/switches?entry=serverModel&value=CP'
 
 
-## 4、Nacos 实操关键内容
+## 5、Nacos  作为注册中心的实操关键内容
 
 ### Ⅰ 注册中心
 
@@ -1864,6 +1880,8 @@ public class PaymentMain9001 {
     }
 }
 ```
+
+----
 
 ### Ⅱ 客户端
 
@@ -1954,6 +1972,113 @@ public class OrderNacosMain83 {
   }
   ```
 
-## 5、Nacos与其它注册中心特性对比
 
-![Nacos与其它注册中心对比图](https://github.com/guiyang175/spring-cloud-2020/raw/master/image/Nacos与其它注册中心对比.png)
+
+## 6、Nacos作为配置中心的实操关键内容
+
+### Ⅰ 基础配置
+
+#### 1）pom
+
+```xml
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+</dependency>
+```
+
+#### 2）yml
+
+​		在项目中需要配置application.yml和bootstrap.yml
+
+​		原因 ： Nacos同Spring Cloud Config一样，在初始化项目时，要保证先从配置中心进行配置拉取，拉去配置后，才能保证项目的正常启动。
+
+* bootstrap.yml
+
+  ```yml
+  server:
+    port: 3377
+  spring:
+    application:
+      name: nacos-config-client
+    cloud:
+      nacos:
+        discovery:
+          server-addr: localhost:8848
+        config:
+          server-addr: localhost:8848
+          file-extension: yaml #指定yaml格式的配置
+  
+  #${spring.application.name}-${spring.profile.active}.${spring.cloud.nacos.config.file-extension}
+  # nacos-config-client-dev.yml
+  ```
+
+* application.yml
+
+  ```yml
+  spring:
+    profiles:
+      active: dev
+  ```
+
+#### 3）主启动
+
+```java
+@EnableDiscoveryClient
+@SpringBootApplication
+public class NacosConfigMain3377 {
+    public static void main(String[] args){
+        SpringApplication.run(NacosConfigMain3377.class,args);
+    }
+}
+```
+
+#### 4）业务类
+
+```java
+@RestController
+@Slf4j
+@RefreshScope
+public class ConfigClientController {
+
+    @Value("${config.info}")
+    private String configInfo;
+
+    @GetMapping("/config/info")
+    public String getConfigInfo() {
+        return configInfo;
+    }
+}
+```
+
+#### 5）Nacos 中的匹配规则
+
+* 官网地址：https://nacos.io/zh-cn/docs/quick-start-spring-cloud.html
+
+* **最后公式**：${spring.application.name}-${spring.profile.active}.${spring.cloud.nacos.config.file-extension}
+* prefix默认为spring.application.name
+* spring.profile.active即当前环境对应的profile，可以通过配置项spring.profile.active来配置
+* file-exetension为配置内容的数据格式，可以通过配置项spring.cloud.nacos.config.file-extension来配置
+
+* 以本项目为例，需要配置的文件名为  nacos-config-client-dev.yaml，在nacos上进行配置和信息的输入.(必须为yaml，写为yml可能会出错)
+
+#### 6）自带动态刷新
+
+​		在nacos上修改发布后，会自动动态刷新
+
+----
+
+### Ⅱ 分类配置
+
+#### 1）命名空间
+
+* Namespace + Group +Data ID三者共同构建
+
+* 类似于java里的package名和类名，最外层的namespace是可以用于区分部署环境的，Group和DataID逻辑上区分两个目标对象
+* 三者关系
+
+![Nacos与其它注册中心对比图](https://github.com/guiyang175/spring-cloud-2020/raw/master/image/命名空间组成关系.png)
