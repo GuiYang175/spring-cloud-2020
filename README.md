@@ -2079,6 +2079,60 @@ public class ConfigClientController {
 * Namespace + Group +Data ID三者共同构建
 
 * 类似于java里的package名和类名，最外层的namespace是可以用于区分部署环境的，Group和DataID逻辑上区分两个目标对象
-* 三者关系
+* 三者情况
 
 ![Nacos与其它注册中心对比图](https://github.com/guiyang175/spring-cloud-2020/raw/master/image/命名空间组成关系.png)
+* 默认情况
+  * Namespace=public
+    * Namespace主要用来实现隔离，不同的Namespace之间是隔离的，比如开发、测试、生产环境
+  * Group=DEFAULT_GROUP
+    * Group可以把不同的微服务划分到同一个分组里
+  * Service ：Nacos默认Cluster（集群）是DEFAULT，Cluster是对指定微服务的一个虚拟划分
+    * Service是微服务，一个service可以包含多个Cluster
+  * instance：就是实例
+
+#### 2）新增yml内容
+
+* bootstrap：
+
+  ```yml
+  spring:
+    cloud:
+      nacos:
+        config:
+          group: TEST_GROUP
+  ```
+
+* application.yml
+
+  ```yml
+  spring:
+    profiles:
+  #    配什么就加载什么
+      active: dev
+  #    active: test
+  #    active: info
+  ```
+
+#### 3）命名空间方案
+
+* 新建命名空间，生成命名空间id
+
+* yml
+
+  ```yml
+  spring:
+    cloud:
+      nacos:
+        config:
+          namespace: 生成的命名空间id
+  ```
+
+
+
+# 十二、Linux Nacos集群和持久化配置（很重要）
+
+## 1、集群架构部署示意图
+
+![Nacos集群架构](https://github.com/guiyang175/spring-cloud-2020/raw/master/image/Nacos集群架构.png)
+
