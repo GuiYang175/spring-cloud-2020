@@ -32,10 +32,12 @@ public class OrderHystrixController {
 //    })
     @HystrixCommand
     public String paymentInfo_TimeOut(@PathVariable("id")Integer id){
+        //此处必定出错，检验运行时错误是否会触发兜底
         int error = 10 / 0;
         return paymentHystrixService.paymentInfo_TimeOut(id);
     }
 
+    //兜底函数
     public String paymentTimeOutFallbackMethod(@PathVariable("id")Integer id){
         return "我是消费者80，对方支付系统繁忙，请十秒钟后再试或者自己运行出错请检查自己!";
     }

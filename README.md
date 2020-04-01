@@ -1,3 +1,7 @@
+[TOC]
+
+
+
 # 前言
 
 ## 微服务模块基本公式
@@ -1770,8 +1774,8 @@ spring:
 ## 1、简介
 
 * Nacos[^Nacos官网] 前四个字母分别为 Naming 和 Configuration 的前两个字母，最后的s为Service
-
 * 一个更易于构建云原生应用的动态服务发现、配置管理和服务管理平台。（就是 注册中心 + 配置中心 的组合 等价于 Nacos = Eureka + Config + Bus）
+* ==默认Nacos使用嵌入式数据库（derby）实现数据的存储==，如果启动多个默认配置下的nacos节点，数据存储是存在一致性问题的。*在集群方面，一般常用集中式存储的方式来支持集群化部署，目前只支持mysql的存储*
 * **注：Nacos 1.2.0 还不支持mysql8.0以上版本**
 
 [^Nacos官网]:https://nacos.io/zh-cn
@@ -2130,9 +2134,62 @@ public class ConfigClientController {
 
 
 
-# 十二、Linux Nacos集群和持久化配置（很重要）
+# 十二、==Nacos集群和持久化配置==
 
 ## 1、集群架构部署示意图
 
 ![Nacos集群架构](https://github.com/guiyang175/spring-cloud-2020/raw/master/image/Nacos集群架构.png)
 
+## 2、WINDOWS 平台下，derby到mysql切换配置步骤
+
+1. 数据库版本需要在 5.6.5+
+
+2. 在 nacos-server-1.1.4\nacos\conf目录下找到nacos-mysql.sql脚本，将脚本复制到数据库中执行
+
+3. 在 nacos-server-1.1.4\nacos\conf目录下找到application.properties对其修改。增加mysql数据源url、用户名和密码
+
+   ```yml
+   spring.datasource.platform=mysql #切换为mysql
+   
+   db.num=1
+   db.url.0=jdbc:mysql://127.0.0.1:3306/nacos_config?characterEncoding=utf8&connectTimeout=1000&sockerTimeout=3000&autoReconnect=true
+   db.user= ...
+   db.password = ...
+   ```
+
+4. 重启Nacos
+
+## ==3、Linux版 Nacos+MySQL生产环境配置==
+
+### Ⅰ 架构设计
+
+​		预计需要，1个Nginx+3个nacos（三个或三个以上的nacos才能构建成集群）+1个mysql
+
+### Ⅱ ==集群配置步骤==
+
+1. 下载并解压nacos(下面的操作最好都事先备份)
+
+2. mysql数据库配置**
+
+   * nacos\conf目录下找到nacos-mysql.sql脚本
+   * 执行脚本创建数据库表（nacos1.2.0需要自己创建数据库 nacos_config）
+
+3. **配置nacos的application.pproperties**
+
+   * 和windows一致
+
+4. **nacos的集群配置cluster.conf**
+
+   * cp cluster.conf.example cluster.conf
+   * 修改cluster.conf，内容为三个ip+端口的组。此处ip必须由hostname -i或者是ip addr看对应网卡的地址（不能为127.0.0.1）获得
+
+5. 编辑Nacos的启动脚本startup.sh，使它能够接受不同的启动端口
+
+   * nacos\bin 目录下找到startup.sh
+   * 修改startup.sh
+   * 找到以while getopts开头的这一行，在s:后增加p:
+   * 再下面几行的位置，找到s) server=$OPTARG;;
+   * 另起一行，添加p）PORT=$OPTARG;;
+   * 示意图 ![startup修改](https://github.com/guiyang175/spring-cloud-2020/raw/master/image/startup修改.png)
+
+   
