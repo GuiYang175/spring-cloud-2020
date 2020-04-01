@@ -2193,9 +2193,39 @@ public class ConfigClientController {
    * 示意图 ![startup修改](https://github.com/guiyang175/spring-cloud-2020/raw/master/image/startup修改.png)
    * 再调到文件的底部，找到nohup $JAVA ${JAVA_OPT} nacos.nacos 。修改为 nohup $JAVA ==-Dserver.port=${PORT}== ${JAVA_OPT} nacos.nacos
 * **执行方式**： ./startip.sh -p 3333  可以多建几个组成集群  ./startip.sh -p 4444 ./startip.sh -p 5555
-6. Nginx 的配置，由它做负载均衡器
+6. **Nginx 的配置**，由它做负载均衡器
 
    * 修改nginx.conf，如下图
 
      ![Nginx配置](https://github.com/guiyang175/spring-cloud-2020/raw/master/image/Nginx.png)
 
+   * 若是docker中的nginx，需要与容器暴露端口相同
+
+7. 启动nacos集群
+
+   * 在nacos/bin目录下使用命令./startup.sh -p 3333        (4444/5555)
+   * 启动完毕后，使用 ps -ef|grep nacos|grep -v grep |wc -l ，确认是否都启动
+
+8. 验证所有配置是否成功
+
+   * 访问 nginx地址/nacos，进入nacos主页。
+   * 新建一个配置
+   * 成功后，在数据库里的config_info查找是否由刚刚的记录。
+
+### Ⅲ、 将微服务9002注册进nacos集群
+
+1. 修改yml
+
+   ```yml
+   spring:
+     application:
+       name: nacos-payment-provider
+     cloud:
+       nacos:
+         discovery:
+           #换成nginx的1111端口，做集群
+           server-addr: 172.16.2.66:1111
+   #        server-addr: localhost:8848
+   ```
+
+2. 启动9002，查看nacos上的服务列表
