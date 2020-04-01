@@ -2183,7 +2183,7 @@ public class ConfigClientController {
    * cp cluster.conf.example cluster.conf
    * 修改cluster.conf，内容为三个ip+端口的组。此处ip必须由hostname -i或者是ip addr看对应网卡的地址（不能为127.0.0.1）获得
 
-5. 编辑Nacos的启动脚本startup.sh，使它能够接受不同的启动端口
+5. **编辑Nacos的启动脚本startup.sh，使它能够接受不同的启动端口**
 
    * nacos\bin 目录下找到startup.sh
    * 修改startup.sh
@@ -2191,5 +2191,11 @@ public class ConfigClientController {
    * 再下面几行的位置，找到s) server=$OPTARG;;
    * 另起一行，添加p）PORT=$OPTARG;;
    * 示意图 ![startup修改](https://github.com/guiyang175/spring-cloud-2020/raw/master/image/startup修改.png)
+   * 再调到文件的底部，找到nohup $JAVA ${JAVA_OPT} nacos.nacos 。修改为 nohup $JAVA ==-Dserver.port=${PORT}== ${JAVA_OPT} nacos.nacos
+* **执行方式**： ./startip.sh -p 3333  可以多建几个组成集群  ./startip.sh -p 4444 ./startip.sh -p 5555
+6. Nginx 的配置，由它做负载均衡器
 
-   
+   * 修改nginx.conf，如下图
+
+     ![Nginx配置](https://github.com/guiyang175/spring-cloud-2020/raw/master/image/Nginx.png)
+
