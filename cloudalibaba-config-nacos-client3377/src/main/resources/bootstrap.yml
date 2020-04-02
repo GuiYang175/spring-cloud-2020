@@ -6,10 +6,14 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: localhost:8848
+        #换成nginx的1111端口，做集群
+        server-addr: 172.16.2.66:1111
+      #        server-addr: localhost:8848
       config:
-        server-addr: localhost:8848
+        #换成nginx的1111端口，做集群
+        server-addr: 172.16.2.66:1111
+        #        server-addr: localhost:8848
         file-extension: yaml #指定yaml格式的配置
-        group: TEST_GROUP
-        namespace: 76af64c4-3f73-444a-8862-a0100b41cf3d
+        group: DEV_GROUP
+        namespace: 948c7162-dbfe-4d80-bfd7-7c33ad8d4f91
 # ${spring.application.name}-${spring.profile.active}.${spring.cloud.nacos.config.file-extension}

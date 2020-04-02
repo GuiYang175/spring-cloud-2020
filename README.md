@@ -2134,7 +2134,7 @@ public class ConfigClientController {
 
 
 
-# 十二、==Nacos集群和持久化配置==
+# 十二、Nacos集群和持久化配置
 
 ## 1、集群架构部署示意图
 
@@ -2169,7 +2169,7 @@ public class ConfigClientController {
 
 1. 下载并解压nacos(下面的操作最好都事先备份)
 
-2. mysql数据库配置**
+2. mysql数据库配置
 
    * nacos\conf目录下找到nacos-mysql.sql脚本
    * 执行脚本创建数据库表（nacos1.2.0需要自己创建数据库 nacos_config）
@@ -2192,7 +2192,7 @@ public class ConfigClientController {
    * 另起一行，添加p）PORT=$OPTARG;;
    * 示意图 ![startup修改](https://github.com/guiyang175/spring-cloud-2020/raw/master/image/startup修改.png)
    * 再调到文件的底部，找到nohup $JAVA ${JAVA_OPT} nacos.nacos 。修改为 nohup $JAVA ==-Dserver.port=${PORT}== ${JAVA_OPT} nacos.nacos
-* **执行方式**： ./startip.sh -p 3333  可以多建几个组成集群  ./startip.sh -p 4444 ./startip.sh -p 5555
+* **执行方式**： ./startup.sh -p 3333  可以多建几个组成集群  ./startup.sh -p 4444 ./startup.sh -p 5555
 6. **Nginx 的配置**，由它做负载均衡器
 
    * 修改nginx.conf，如下图
@@ -2229,3 +2229,4 @@ public class ConfigClientController {
    ```
 
 2. 启动9002，查看nacos上的服务列表
+
