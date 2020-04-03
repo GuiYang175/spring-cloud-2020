@@ -2607,6 +2607,8 @@ sentinel整合ribbon+openFeign+fallback
       
     * 业务类
     
+      * controller
+    
       ```java
       @RestController
       @Slf4j
@@ -2617,7 +2619,13 @@ sentinel整合ribbon+openFeign+fallback
           private RestTemplate restTemplate;
       
           @RequestMapping("/consumer/fallback/{id}")
-          @SentinelResource(value="fallback")
+      //    @SentinelResource(value="fallback")//什么都没配置
+      //    @SentinelResource(value="fallback",fallback = "handlerFallback")//fallback只负责业务异常
+      //      @SentinelResource(value="fallback",blockHandler = "blockHandler")//blockHandler只负责sentinel控制台配置违规
+          @SentinelResource(value="fallback",
+                  fallback = "handlerFallback",
+                  blockHandler = "blockHandler",
+                  exceptionsToIgnore = {IllegalArgumentException.class})//若前都配，则被限流降级而抛出BlockException时，只会进入blockHandler处理逻辑.exceptionsToIgnore为忽略该类异常，对其不实行fallback兜底
           public CommonResult<Payment> fallback(@PathVariable Long id){
               CommonResult<Payment> result =restTemplate.getForObject(Service_URL+"/paymentSQL/"+id,CommonResult.class,id);
               if(id == 4){
@@ -2626,6 +2634,41 @@ sentinel整合ribbon+openFeign+fallback
                   throw new NullPointerException ("NullPointerException,该ID没有对应记录，空指针异常");
               }
               return result;
+          }
+      
+          /**本例是fallback
+           *
+           * @param id
+           * @param e
+           * @return
+           */
+          public CommonResult handlerFallback(@PathVariable Long id,Throwable e){
+              Payment payment = new Payment(id,"null");
+              return new CommonResult(444,"兜底异常handlerFallBack,exception内容"+e.getMessage(),payment);
+          }
+      
+          /**本例是blockHandler
+           *
+           * @param id
+           * @return
+           */
+          public CommonResult blockHandler(@PathVariable Long id, BlockException blockException){
+              Payment payment = new Payment(id,"null");
+              return new CommonResult(445,"blockException-sentinel限流，无此流水：blockException"+blockException.getMessage(),payment);
+          }
+      }
+      ```
+    
+      * config
+    
+      ```java
+      @Configuration
+      public class ApplicationContextConfig {
+      
+          @Bean
+          @LoadBalanced
+          public RestTemplate getRestTemplate(){
+              return new RestTemplate();
           }
       }
       ```
